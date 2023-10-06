@@ -169,7 +169,8 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
                     reader: {
                         type: 'json',
                         rootProperty: 'data',
-                        idProperty: 'id'
+                        idProperty: 'id',
+                        clientIdProperty: '__clientid'
                     }
                 }
             },

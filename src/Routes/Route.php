@@ -67,11 +67,15 @@ class Route implements IRoute{
                     if ( $input !== array_values($input) ) {
                         $input = [$input];
                     }
+
+                    $result = [];
                     foreach($input as $row){
 
                         $sql = 'insert ignore into loginnamen (login) values ({id})';
                         App::get('session')->db->direct($sql,array('id'=>$row['id'] ));
 
+                        
+                        $row['__clientid'] =  $row['id'];
                         foreach($row as $key=>$value){
                             if (in_array($key,['login'])){
                                 $sql = 'update macc_users set `'.$key.'`={value} where login={id}';
@@ -80,15 +84,17 @@ class Route implements IRoute{
                                 }
                                 App::get('session')->db->direct($sql,array('id'=>$row['id'],'value'=>$row[$key]));
                             }
+
                             if (in_array($key,['vorname','nachname','email','telefon','mobile','zeichen'])){
                                 $sql = 'update loginnamen set `'.$key.'`={value} where login={id}';
-                                App::get('session')->db->direct($sql,array('id'=>$row['id'],'value'=>$row[$key]));
+                                App::get('session')->db->direct($sql,array('id'=>$row['login'],'value'=>$row[$key]));
                             }
+
                             if (in_array($key,['groups'])){
                                 App::get('session')->db->direct(
                                     'delete from macc_users_groups where id={id}',
                                     [
-                                        'id'=>$row['id']
+                                        'id'=>$row['login']
                                     ]);
                                     foreach($value as $group){
                                         App::get('session')->db->direct(
@@ -104,21 +110,23 @@ class Route implements IRoute{
                                 App::get('session')->db->direct(
                                     'delete from macc_users_clients where login={id}',
                                     [
-                                        'id'=>$row['id']
+                                        'id'=>$row['login']
                                     ]);
                                     foreach($value as $client){
                                         App::get('session')->db->direct(
                                             'insert into macc_users_clients (login,`client`) values ({id},{client}) on duplicate key update `client`=values(`client`)',
                                             [
-                                                'id'=>$row['id'],
+                                                'id'=>$row['login'],
                                                 'client'=>$client
                                             ]
                                         );
                                     }
                             }
                         }
+                        $result[] = $row;
                     }
                     
+                    App::result('data', $result);
                     App::result('success', true);
                 }
             }catch(\Exception $e){
