@@ -76,6 +76,7 @@ class Route implements IRoute{
 
                         
                         $row['__clientid'] =  $row['id'];
+                        if (!isset($row['login'])) $row['login'] = $row['id'];
                         foreach($row as $key=>$value){
                             if (in_array($key,['login'])){
                                 $sql = 'update macc_users set `'.$key.'`={value} where login={id}';
