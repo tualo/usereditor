@@ -28,15 +28,16 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
             var grid = this.up('panel').down('gridpanel');
             var store = grid.getStore();
             var selection = grid.getSelection()[0];
+            console.log(selection);
             if (!selection) return;
 
 
 
-            Ext.MessageBox.confirm('Löschen', 'Soll der Eintrag "' + selection.get('name') + '" wirklich gelöscht werden?', function (btn) {
+            Ext.MessageBox.confirm('Löschen', 'Soll der Eintrag "' + selection.get('id') + '" wirklich gelöscht werden?', function (btn) {
                 if (btn == 'yes') {
 
                     Tualo.Fetch.post('usereditor/delete', {
-                        id: selection.get('name'),
+                        id: selection.get('id'),
                     }).then(function (result) {
                         store.load();
                     }).catch(function (e) {
@@ -168,7 +169,7 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
                     reader: {
                         type: 'json',
                         rootProperty: 'data',
-                        idProperty: 'name'
+                        idProperty: 'id'
                     }
                 }
             },
