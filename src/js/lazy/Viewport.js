@@ -12,7 +12,7 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
         glyph: 'circle-plus',
         tooltip: 'Hinzufügen',
         handler: function (me) {
-            var grid = this.up('panel').down('gridpanel');
+            var grid = this.up('panel').down('grid');
             var store = grid.getStore();
             store.add({ login: 'Neuer nutzer' });
             setTimeout(() => { store.load() }, 1000);
@@ -25,7 +25,7 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
         glyph: 'circle-minus',
         tooltip: 'Entfernen',
         handler: function (me) {
-            var grid = this.up('panel').down('gridpanel');
+            var grid = this.up('panel').down('grid');
             var store = grid.getStore();
             var selection = grid.getSelection()[0];
             console.log(selection);
@@ -55,7 +55,7 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
         glyph: 'sync',
         tooltip: 'neu Laden',
         handler: function (me) {
-            var grid = this.up('panel').down('gridpanel');
+            var grid = this.up('panel').down('grid');
             var store = grid.getStore();
             store.load();
         }
@@ -66,7 +66,7 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
         glyph: 'lock',
         tooltip: 'Passwort zurücksetzen',
         handler: function(){
-            var grid = this.up('panel').down('gridpanel');
+            var grid = this.up('panel').down('grid');
             var store = grid.getStore();
             var selection = grid.getSelection()[0];
             if (!selection) return;
@@ -141,7 +141,8 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
     layout: 'card',
     items: [
         {
-            xtype: 'gridpanel',
+            xtype: 'grid',
+            
             selModel: 'cellmodel',
             plugins: {
                 cellediting: {
@@ -153,6 +154,7 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
                 startCollapsed: false,
                 groupHeaderTpl: '{columnName}: {name} ({rows.length} {[values.rows.length > 1 ? "Einträge" : "Eintrag"]})'
             }],
+            
             store: {
                 type: 'json',
                 autoSync: true,
@@ -176,6 +178,12 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
             },
 
             listeners: {
+                childdoubletap: function (me, x, item, index, e, eOpts) {
+                    console.log('doubletapped', arguments);
+                    this.up('panel').setActiveItem(1);
+                    var form = this.up('panel').down('form');
+                    form.setRecord(x.record);
+                },
                 itemdblclick: function (me, record, item, index, e, eOpts) {
                     this.up('panel').getLayout().setActiveItem(1);
                     var form = this.up('panel').down('form');
@@ -197,7 +205,8 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
                 text: 'Name',
                 dataIndex: 'vorname',
                 flex: 1,
-                renderer: function (value, metaData, record, rowIndex, colIndex, store, view) {
+                renderer: function (value, md, record, rowIndex, colIndex, store, view) {
+                    if (Ext.isModern) return value + ' ' + md.get('nachname');
                     return value + ' ' + record.get('nachname');
                 },
                 sortable: true,
@@ -227,30 +236,34 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
                     text: 'Speichern',
                     handler: function (me) {
                         var form = me.up('form');
-                        var grid = form.up('panel').down('gridpanel');
+                        var grid = form.up('panel').down('grid');
                         var store = grid.getStore();
-                        var selection = grid.getSelection()[0];
+ //                       store.sync();
+//                        form.up('panel').setActiveItem(0);
 
-                        let vals = form.getValues();
+//                        if (false){
+                            var selection = grid.getSelection()[0];
 
-                        for (const key in vals) {
-                            if (Object.hasOwnProperty.call(vals, key)) {
-                                selection.set(key, vals[key]);
+                            let vals = form.getValues();
+
+                            for (const key in vals) {
+                                if (Object.hasOwnProperty.call(vals, key)) {
+                                    selection.set(key, vals[key]);
+                                }
                             }
-                        }
-                        /*
-                        if (Ext.isEmpty(vals.users)) vals.users = [];
-                        selection.set('text', vals.text);
-                        selection.set('title', vals.text);
-                        // selection.set('iconCls',vals.iconCls);
-                        selection.set('iconcls', vals.iconcls);
-                        selection.set('route_to', vals.route_to);
-                        selection.set('users', vals.users);
-                        selection.commit();
-                        */
+                            /*
+                            if (Ext.isEmpty(vals.users)) vals.users = [];
+                            selection.set('text', vals.text);
+                            selection.set('title', vals.text);
+                            // selection.set('iconCls',vals.iconCls);
+                            selection.set('iconcls', vals.iconcls);
+                            selection.set('route_to', vals.route_to);
+                            selection.set('users', vals.users);
+                            selection.commit();
+                            */
 
-                        form.up('panel').getLayout().setActiveItem(0);
-
+                            form.up('panel').getLayout().setActiveItem(0);
+//                        }
                     }
                 }
             ],
@@ -258,31 +271,37 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
                 {
                     xtype: 'textfield',
                     fieldLabel: 'Login',
+                    label: 'Login',
                     name: 'login',
                     allowBlank: false
                 },
                 {
                     xtype: 'textfield',
                     fieldLabel: 'Vorname',
+                    label: 'Vorname',
                     name: 'vorname',
                     allowBlank: true
                 },
                 {
                     xtype: 'textfield',
                     fieldLabel: 'Nachname',
+                    label: 'Nachname',
                     name: 'nachname',
                     allowBlank: true
                 },
                 {
                     xtype: 'textfield',
                     fieldLabel: 'E-Mail',
+                    label: 'E-Mail',
                     name: 'email',
                     allowBlank: true
                 },
                 {
                     fieldLabel: 'Gruppen',
+                    label: 'Gruppen',
                     name: 'groups',
                     xtype: 'tagfield',
+                    //xtype: 'combobox',
                     anchor: '100%',
                     valueField: 'group',
                     displayField: 'group',
@@ -300,8 +319,10 @@ Ext.define('Tualo.usereditor.lazy.Viewport', {
                 },
                 {
                     fieldLabel: 'Systeme',
+                    label: 'Systeme',
                     name: 'clients',
                     xtype: 'tagfield',
+                    //xtype: 'combobox',
                     anchor: '100%',
                     valueField: 'id',
                     displayField: 'id',
