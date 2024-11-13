@@ -209,6 +209,8 @@ class Route implements IRoute{
                     $list =  App::get('session')->db->direct('select id from macc_clients',$_REQUEST);
                     App::result('data',$list);
                     App::result('success', true);
+                }else{
+                    App::result('msg', 'no permission');
                 }
             }catch(\Exception $e){
                 App::result('msg', $e->getMessage());
