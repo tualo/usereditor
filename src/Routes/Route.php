@@ -8,6 +8,11 @@ use Tualo\Office\Basic\IRoute;
 
 class Route extends \Tualo\Office\Basic\RouteWrapper
 {
+    public static function scope(): string
+    {
+        return 'usereditor.main';
+    }
+
     public static function register()
     {
         BasicRoute::add('/usereditor/read', function ($matches) {
@@ -57,7 +62,7 @@ class Route extends \Tualo\Office\Basic\RouteWrapper
             } catch (\Exception $e) {
                 App::result('msg', $e->getMessage());
             }
-        }, ['get', 'post'], true);
+        }, ['get', 'post'], true, [], self::scope());
 
 
         BasicRoute::add('/usereditor/update', function ($matches) {
@@ -139,7 +144,7 @@ class Route extends \Tualo\Office\Basic\RouteWrapper
                 App::result('msg', $e->getMessage());
                 App::result('xy', App::get('session')->db->last_sql);
             }
-        }, ['get', 'post'], true);
+        }, ['get', 'post'], true,   [], self::scope());
 
         BasicRoute::add('/usereditor/create', function ($matches) {
             App::contenttype('application/json');
@@ -161,7 +166,7 @@ class Route extends \Tualo\Office\Basic\RouteWrapper
             } catch (\Exception $e) {
                 App::result('msg', $e->getMessage());
             }
-        }, ['get', 'post'], true);
+        }, ['get', 'post'], true,   [], self::scope());
 
 
         BasicRoute::add('/usereditor/delete', function ($matches) {
@@ -181,7 +186,7 @@ class Route extends \Tualo\Office\Basic\RouteWrapper
             } catch (\Exception $e) {
                 App::result('msg', $e->getMessage());
             }
-        }, ['get', 'post'], true);
+        }, ['get', 'post'], true,   [], self::scope());
 
 
         BasicRoute::add('/usereditor/passwd', function ($matches) {
@@ -197,7 +202,7 @@ class Route extends \Tualo\Office\Basic\RouteWrapper
             } catch (\Exception $e) {
                 App::result('msg', $e->getMessage());
             }
-        }, ['get', 'post'], true);
+        }, ['get', 'post'], true, [], self::scope());
 
         BasicRoute::add('/usereditor/clients/read', function ($matches) {
 
@@ -215,6 +220,6 @@ class Route extends \Tualo\Office\Basic\RouteWrapper
             } catch (\Exception $e) {
                 App::result('msg', $e->getMessage());
             }
-        }, ['get', 'post'], true);
+        }, ['get', 'post'], true, [], self::scope());
     }
 }
